@@ -1,0 +1,27 @@
+<!-- views/home.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upcoming Events</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <h1>Upcoming Events</h1>
+  
+  <% if (events.length === 0) { %>
+    <p>No upcoming events at the moment.</p>
+  <% } else { %>
+    <ul>
+      <% events.forEach(event => { %>
+        <li>
+          <h3><%= event.name %></h3>
+          <p><%= event.date.toDateString() %></p>
+          <p><%= event.description %></p>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</body>
+</html>
