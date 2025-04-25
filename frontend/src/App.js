@@ -7,22 +7,85 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Events from './pages/Events';
 import Gallery from './pages/Gallery';
+import RegisterEvent from './pages/RegisterEvent'; 
+import StudentDashboard from './pages/StudentDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import AddEvent from './pages/AddEvent'; // You'll create this next
+import AddWinner from './pages/AddWinner'; // Optional
+import EditWinner from './pages/EditWinner';
+import WinnerGallery from './pages/WinnerGallery';
+import ViewRegistrations from './pages/ViewRegistrations'; // Optional
+import EditEvent from './pages/EditEvent';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
+// or correct path if it's in another folder
+
 
 
 function App() {
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/gallery" element={<Gallery />} />
-        
-      </Routes>
-      <Footer/>
-    </Router>
+    <>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/register/:eventId" element={<RegisterEvent />} />
+          <Route path="/student-dashboard" element={<StudentDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/add-event" element={<AddEvent />} />
+          <Route path="/admin/edit-event/:eventId" element={<EditEvent />} />
+          <Route 
+            path="/admin/winners" 
+            element={
+              <ProtectedRoute>
+                <AdminRoute>
+                  <WinnerGallery />
+                </AdminRoute>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/add-winner" 
+            element={
+              <ProtectedRoute>
+                <AdminRoute>
+                  <AddWinner />
+                </AdminRoute>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/edit-winner/:winnerId" 
+            element={
+              <ProtectedRoute>
+                <AdminRoute>
+                  <EditWinner />
+                </AdminRoute>
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/admin/registrations" element={<ViewRegistrations />} />
+        </Routes>
+        <Footer/>
+      </Router>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </>
   );
 }
 

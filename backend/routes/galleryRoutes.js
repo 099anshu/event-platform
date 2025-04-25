@@ -1,16 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const Gallery = require('../models/Gallery'); // Adjust path if needed
+const { 
+    getLatestWinners,
+    addWinner
+} = require('../controllers/galleryController');
+const authMiddleware = require('../middleware/authMiddleware');
+const adminMiddleware = require('../middleware/adminMiddleware');
 
-// ✅ Route: Get latest gallery items
-router.get('/latest', async (req, res) => {
-  try {
-    const galleryItems = await Gallery.find().sort({ date: -1 }).limit(3); // Latest 3
-    res.json(galleryItems);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
-  }
-});
+// Public routes
+router.get('/latest', getLatestWinners);
+
+// Admin routes
+router.post('/winners', [authMiddleware, adminMiddleware], addWinner);
 
 module.exports = router;
