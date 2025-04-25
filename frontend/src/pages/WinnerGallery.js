@@ -3,6 +3,9 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
+// Add backend URL configuration
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5001';
+
 const WinnerGallery = () => {
     const navigate = useNavigate();
     const [winners, setWinners] = useState([]);
@@ -10,11 +13,9 @@ const WinnerGallery = () => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [showModal, setShowModal] = useState(false);
     const [editingWinner, setEditingWinner] = useState(null);
-    const [events, setEvents] = useState([]);
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState('');
     const [formData, setFormData] = useState({
-        eventId: '',
         category: 'tech',
         subCategory: 'hackathon',
         title: '',
@@ -40,31 +41,39 @@ const WinnerGallery = () => {
         debate: ['parliamentary', 'mun', 'group', 'individual']
     };
 
+    // Get token from localStorage
+    const getAuthHeader = () => {
+        const token = localStorage.getItem('token');
+        return token ? { Authorization: `Bearer ${token}` } : {};
+    };
+
     useEffect(() => {
         fetchWinners();
-        fetchEvents();
     }, [selectedCategory]);
-
-    const fetchEvents = async () => {
-        try {
-            const response = await axios.get('/api/events');
-            setEvents(response.data);
-        } catch (error) {
-            console.error('Error fetching events:', error);
-            toast.error('Failed to fetch events');
-        }
-    };
 
     const fetchWinners = async () => {
         try {
             const url = selectedCategory === 'all' 
                 ? '/api/winners'
                 : `/api/winners/category/${selectedCategory}`;
-            const response = await axios.get(url);
-            setWinners(response.data.winners);
+            console.log('Fetching winners from:', url);
+            const response = await axios.get(url, {
+                headers: getAuthHeader()
+            });
+            
+            if (response.data.success) {
+                setWinners(response.data.winners);
+            } else {
+                throw new Error(response.data.message || 'Failed to fetch winners');
+            }
         } catch (error) {
             console.error('Error fetching winners:', error);
-            toast.error('Failed to fetch winners');
+            console.error('Error details:', {
+                message: error.response?.data?.message || error.message,
+                status: error.response?.status,
+                data: error.response?.data
+            });
+            toast.error(error.response?.data?.message || 'Failed to fetch winners');
         } finally {
             setLoading(false);
         }
@@ -73,12 +82,14 @@ const WinnerGallery = () => {
     const handleDelete = async (winnerId) => {
         if (window.confirm('Are you sure you want to delete this winner?')) {
             try {
-                await axios.delete(`/api/winners/${winnerId}`);
+                await axios.delete(`/api/winners/${winnerId}`, {
+                    headers: getAuthHeader()
+                });
                 toast.success('Winner deleted successfully');
                 fetchWinners();
             } catch (error) {
                 console.error('Error deleting winner:', error);
-                toast.error('Failed to delete winner');
+                toast.error(error.response?.data?.message || 'Failed to delete winner');
             }
         }
     };
@@ -86,8 +97,7 @@ const WinnerGallery = () => {
     const handleEdit = (winner) => {
         setEditingWinner(winner);
         setFormData({
-            ...winner,
-            eventId: winner.eventId._id || winner.eventId
+            ...winner
         });
         setImagePreview(winner.imageUrl);
         setShowModal(true);
@@ -96,7 +106,6 @@ const WinnerGallery = () => {
     const handleAdd = () => {
         setEditingWinner(null);
         setFormData({
-            eventId: '',
             category: 'tech',
             subCategory: 'hackathon',
             title: '',
@@ -171,11 +180,13 @@ const WinnerGallery = () => {
 
         const formDataObj = new FormData();
         formDataObj.append('image', imageFile);
+        console.log('Uploading image:', imageFile);
 
         try {
             const response = await axios.post('/api/upload', formDataObj, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
+            console.log('Image upload response:', response.data);
             return response.data.imageUrl;
         } catch (error) {
             console.error('Error uploading image:', error);
@@ -185,7 +196,9 @@ const WinnerGallery = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.eventId || !formData.title || !formData.teamName) {
+        console.log('Form Data:', formData);
+
+        if (!formData.title || !formData.teamName) {
             toast.error('Please fill in all required fields');
             return;
         }
@@ -197,33 +210,74 @@ const WinnerGallery = () => {
 
         setLoading(true);
         try {
-            const imageUrl = await uploadImage();
-            if (!imageUrl && !editingWinner) {
-                toast.error('Failed to upload image');
-                return;
+            let imageUrl;
+            if (imageFile) {
+                console.log('Uploading image...');
+                const formDataObj = new FormData();
+                formDataObj.append('image', imageFile);
+                
+                const uploadResponse = await axios.post('/api/upload', formDataObj, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        ...getAuthHeader()
+                    }
+                });
+                console.log('Upload response:', uploadResponse.data);
+                
+                if (!uploadResponse.data.success) {
+                    throw new Error(uploadResponse.data.message || 'Failed to upload image');
+                }
+                imageUrl = uploadResponse.data.imageUrl;
+            } else if (editingWinner) {
+                imageUrl = formData.imageUrl;
+            }
+
+            if (!imageUrl) {
+                throw new Error('No image URL available');
             }
 
             const winnerData = {
                 ...formData,
-                imageUrl: imageUrl || formData.imageUrl
+                imageUrl
             };
+            console.log('Submitting winner data:', winnerData);
 
+            let response;
             if (editingWinner) {
-                await axios.put(`/api/winners/${editingWinner._id}`, winnerData);
-                toast.success('Winner updated successfully');
+                response = await axios.put(`/api/winners/${editingWinner._id}`, winnerData, {
+                    headers: getAuthHeader()
+                });
             } else {
-                await axios.post('/api/winners', winnerData);
-                toast.success('Winner added successfully');
+                response = await axios.post('/api/winners', winnerData, {
+                    headers: getAuthHeader()
+                });
             }
-            
+            console.log('Save response:', response.data);
+
+            toast.success(editingWinner ? 'Winner updated successfully' : 'Winner added successfully');
             setShowModal(false);
             fetchWinners();
         } catch (error) {
-            console.error('Error saving winner:', error);
-            toast.error(error.response?.data?.message || 'Failed to save winner');
+            console.error('Full error:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to save winner';
+            console.error('Error details:', {
+                message: errorMessage,
+                response: error.response?.data,
+                status: error.response?.status
+            });
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
+    };
+
+    // Function to get complete image URL
+    const getImageUrl = (relativePath) => {
+        if (!relativePath) return '';
+        if (relativePath.startsWith('http')) return relativePath;
+        // Remove any leading slashes to avoid double slashes
+        const cleanPath = relativePath.replace(/^\/+/, '');
+        return `${BACKEND_URL}/${cleanPath}`;
     };
 
     if (loading && !showModal) {
@@ -271,7 +325,7 @@ const WinnerGallery = () => {
                         >
                             <div className="relative h-48">
                                 <img
-                                    src={winner.imageUrl}
+                                    src={getImageUrl(winner.imageUrl)}
                                     alt={winner.title}
                                     className="w-full h-full object-cover"
                                 />
@@ -357,26 +411,6 @@ const WinnerGallery = () => {
                             </div>
 
                             <form onSubmit={handleSubmit} className="space-y-6">
-                                <div>
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">
-                                        Event
-                                    </label>
-                                    <select
-                                        name="eventId"
-                                        value={formData.eventId}
-                                        onChange={handleChange}
-                                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                        required
-                                    >
-                                        <option value="">Select an event</option>
-                                        {events.map((event) => (
-                                            <option key={event._id} value={event._id}>
-                                                {event.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
                                 <div>
                                     <label className="block text-gray-700 text-sm font-bold mb-2">
                                         Category
@@ -523,7 +557,7 @@ const WinnerGallery = () => {
                                     {imagePreview && (
                                         <div className="mt-4">
                                             <img
-                                                src={imagePreview}
+                                                src={getImageUrl(imagePreview)}
                                                 alt="Preview"
                                                 className="h-40 w-full object-cover rounded-lg"
                                             />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -6,11 +6,9 @@ import { toast } from 'react-toastify';
 const AddWinner = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [events, setEvents] = useState([]);
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState('');
     const [formData, setFormData] = useState({
-        eventId: '',
         category: 'tech',
         subCategory: 'hackathon',
         title: '',
@@ -28,18 +26,9 @@ const AddWinner = () => {
         debate: ['parliamentary', 'mun', 'group', 'individual']
     };
 
-    useEffect(() => {
-        fetchEvents();
-    }, []);
-
-    const fetchEvents = async () => {
-        try {
-            const response = await axios.get('/api/events');
-            setEvents(response.data);
-        } catch (error) {
-            console.error('Error fetching events:', error);
-            toast.error('Failed to fetch events');
-        }
+    const getAuthHeader = () => {
+  const token = localStorage.getItem('token');
+        return token ? { Authorization: `Bearer ${token}` } : {};
     };
 
     const handleChange = (e) => {
@@ -107,7 +96,8 @@ const AddWinner = () => {
         try {
             const response = await axios.post('/api/upload', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    ...getAuthHeader()
                 }
             });
             return response.data.imageUrl;
@@ -117,9 +107,9 @@ const AddWinner = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!formData.eventId || !formData.title || !formData.teamName) {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+        if (!formData.title || !formData.teamName) {
             toast.error('Please fill in all required fields');
             return;
         }
@@ -142,7 +132,9 @@ const AddWinner = () => {
                 imageUrl
             };
 
-            await axios.post('/api/winners', winnerData);
+            await axios.post('/api/winners', winnerData, {
+                headers: getAuthHeader()
+            });
             toast.success('Winner added successfully');
             navigate('/admin/winners');
         } catch (error) {
@@ -150,10 +142,10 @@ const AddWinner = () => {
             toast.error(error.response?.data?.message || 'Failed to add winner');
         } finally {
             setLoading(false);
-        }
-    };
+    }
+  };
 
-    return (
+  return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto">
                 <div className="bg-white shadow-lg rounded-lg px-6 py-8">
@@ -168,7 +160,6 @@ const AddWinner = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-
                         <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">
                                 Category
@@ -192,19 +183,19 @@ const AddWinner = () => {
                             <label className="block text-gray-700 text-sm font-bold mb-2">
                                 Sub Category
                             </label>
-                            <select
+          <select
                                 name="subCategory"
                                 value={formData.subCategory}
                                 onChange={handleChange}
                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                required
-                            >
+            required
+          >
                                 {categoryMap[formData.category].map((subCategory) => (
                                     <option key={subCategory} value={subCategory}>
                                         {subCategory.charAt(0).toUpperCase() + subCategory.slice(1)}
-                                    </option>
-                                ))}
-                            </select>
+              </option>
+            ))}
+          </select>
                         </div>
 
                         <div>
@@ -239,11 +230,12 @@ const AddWinner = () => {
 
                         <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">
-                                Achievement
+                                Description
                             </label>
                             <input
                                 type="text"
                                 name="achievement"
+                                rows={4}
                                 value={formData.achievement}
                                 onChange={handleChange}
                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -329,14 +321,14 @@ const AddWinner = () => {
                             </label>
                             {formData.teamMembers.map((member, index) => (
                                 <div key={index} className="flex gap-2 mb-2">
-                                    <input
-                                        type="text"
+          <input
+            type="text"
                                         value={member.name}
                                         onChange={(e) => handleTeamMemberChange(index, 'name', e.target.value)}
                                         className="shadow appearance-none border rounded flex-1 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                         placeholder="Member name"
-                                        required
-                                    />
+            required
+          />
                                     <input
                                         type="text"
                                         value={member.role}
@@ -372,19 +364,19 @@ const AddWinner = () => {
                             >
                                 Cancel
                             </button>
-                            <button
-                                type="submit"
+          <button
+            type="submit"
                                 disabled={loading}
                                 className={`px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
-                            >
+          >
                                 {loading ? 'Adding...' : 'Add Winner'}
-                            </button>
+          </button>
                         </div>
-                    </form>
+        </form>
                 </div>
-            </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default AddWinner;

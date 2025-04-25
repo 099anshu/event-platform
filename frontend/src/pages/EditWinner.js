@@ -7,9 +7,7 @@ const EditWinner = () => {
     const { winnerId } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
-    const [events, setEvents] = useState([]);
     const [formData, setFormData] = useState({
-        eventId: '',
         category: 'tech',
         subCategory: 'hackathon',
         title: '',
@@ -30,19 +28,8 @@ const EditWinner = () => {
     };
 
     useEffect(() => {
-        fetchEvents();
         fetchWinner();
     }, [winnerId]);
-
-    const fetchEvents = async () => {
-        try {
-            const response = await axios.get('/api/events');
-            setEvents(response.data);
-        } catch (error) {
-            console.error('Error fetching events:', error);
-            toast.error('Failed to fetch events');
-        }
-    };
 
     const fetchWinner = async () => {
         try {
@@ -141,7 +128,7 @@ const EditWinner = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.eventId || !formData.title || !formData.teamName) {
+        if (!formData.title || !formData.teamName) {
             toast.error('Please fill in all required fields');
             return;
         }
@@ -193,26 +180,6 @@ const EditWinner = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
-                            <label className="block text-gray-700 text-sm font-bold mb-2">
-                                Event
-                            </label>
-                            <select
-                                name="eventId"
-                                value={formData.eventId}
-                                onChange={handleChange}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                required
-                            >
-                                <option value="">Select an event</option>
-                                {events.map((event) => (
-                                    <option key={event._id} value={event._id}>
-                                        {event.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
                         <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">
                                 Category

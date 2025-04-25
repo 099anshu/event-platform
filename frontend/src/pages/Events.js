@@ -9,8 +9,8 @@ const Events = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isAdmin = localStorage.getItem('isAdmin') === 'true';
   const token = localStorage.getItem('token');
+  const isAdmin = localStorage.getItem('isAdmin') === 'true' && token;
   const isManagementMode = isAdmin && location.state?.fromAdminDashboard;
 
   useEffect(() => {
@@ -19,11 +19,24 @@ const Events = () => {
 
   const fetchEvents = async () => {
     try {
-      const res = await axios.get('/api/events/upcoming');
-      setEvents(res.data);
+      const endpoint = isManagementMode ? '/api/events/all' : '/api/events/upcoming';
+      const config = token ? {
+        headers: { Authorization: `Bearer ${token}` }
+      } : {};
+      
+      const res = await axios.get(endpoint, config);
+      if (Array.isArray(res.data)) {
+        setEvents(res.data);
+      } else if (res.data.events && Array.isArray(res.data.events)) {
+        setEvents(res.data.events);
+      } else {
+        console.error('Unexpected response format:', res.data);
+        setEvents([]);
+      }
     } catch (err) {
       console.error('Failed to fetch events:', err);
       toast.error('Failed to load events');
+      setEvents([]);
     } finally {
       setLoading(false);
     }
@@ -31,19 +44,24 @@ const Events = () => {
 
   const handleRegister = (eventId) => {
     if (!token) {
-      navigate('/login');
+      navigate('/login', { state: { from: location.pathname } });
       return;
     }
     navigate(`/register/${eventId}`);
   };
 
   const handleDelete = async (eventId) => {
+    if (!isAdmin) {
+      toast.error('You do not have permission to delete events');
+      return;
+    }
+
     if (!window.confirm('Are you sure you want to delete this event?')) {
       return;
     }
 
     try {
-      await axios.delete(`/api/admin/events/${eventId}`, {
+      await axios.delete(`/api/events/${eventId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -57,6 +75,10 @@ const Events = () => {
   };
 
   const handleEdit = (eventId) => {
+    if (!isAdmin) {
+      toast.error('You do not have permission to edit events');
+      return;
+    }
     navigate(`/admin/edit-event/${eventId}`);
   };
 
@@ -108,7 +130,8 @@ const Events = () => {
                 <p className="text-gray-600 mt-2">Edit, update, or delete events from this page</p>
               )}
             </div>
-            {isAdmin && (
+            {/* Only show Add New Event button in management mode */}
+            {isManagementMode && (
               <div className="flex gap-4">
                 <button
                   onClick={() => navigate('/admin/add-event')}
@@ -129,7 +152,7 @@ const Events = () => {
           {events.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <p className="text-lg text-gray-700 mb-4">No upcoming events at the moment.</p>
-              {isAdmin && (
+              {isManagementMode && (
                 <button
                   onClick={() => navigate('/admin/add-event')}
                   className="text-indigo-600 hover:text-indigo-800 font-medium"
@@ -148,7 +171,8 @@ const Events = () => {
                     alt={event.name}
                     className="w-full h-full object-cover transform hover:scale-105 transition duration-300"
                   />
-                  {isAdmin && (
+                  {/* Only show edit/delete buttons in management mode */}
+                  {isManagementMode && (
                     <div className="absolute top-2 right-2 flex gap-2">
                       <button
                         onClick={() => handleEdit(event._id)}
@@ -158,7 +182,7 @@ const Events = () => {
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
-                        {isManagementMode && <span>Edit</span>}
+                        <span>Edit</span>
                       </button>
                       <button
                         onClick={() => handleDelete(event._id)}
@@ -168,7 +192,7 @@ const Events = () => {
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
-                        {isManagementMode && <span>Delete</span>}
+                        <span>Delete</span>
                       </button>
                     </div>
                   )}

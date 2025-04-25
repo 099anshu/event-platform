@@ -4,7 +4,7 @@ const Event = require('../models/Event');
 
 // Register for an event
 exports.registerForEvent = async (req, res) => {
-    try {
+  try {
         const { eventId } = req.body;
         const studentId = req.user.id;
 
@@ -15,7 +15,7 @@ exports.registerForEvent = async (req, res) => {
                 success: false,
                 message: 'You are already registered for this event'
             });
-        }
+    }
 
         // Create registration
         const registration = await Registration.create({
@@ -33,19 +33,19 @@ exports.registerForEvent = async (req, res) => {
             message: 'Successfully registered for event',
             registration
         });
-    } catch (err) {
+  } catch (err) {
         console.error('Registration error:', err);
         res.status(500).json({
             success: false,
             message: 'Failed to register for event',
             error: err.message
         });
-    }
+  }
 };
 
 // Get user's registrations
 exports.getMyRegistrations = async (req, res) => {
-    try {
+  try {
         const registrations = await Registration.find({ studentId: req.user.id })
             .populate('eventId')
             .sort({ createdAt: -1 });
@@ -76,12 +76,12 @@ exports.getAllRegistrations = async (req, res) => {
             success: true,
             registrations
         });
-    } catch (err) {
+  } catch (err) {
         console.error('Error fetching all registrations:', err);
         res.status(500).json({
             success: false,
             message: 'Failed to fetch registrations',
             error: err.message
         });
-    }
+  }
 };

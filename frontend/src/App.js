@@ -27,18 +27,18 @@ import AdminRoute from './components/AdminRoute';
 function App() {
   return (
     <>
-      <Router>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/register/:eventId" element={<RegisterEvent />} />
-          <Route path="/student-dashboard" element={<StudentDashboard />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/add-event" element={<AddEvent />} />
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/events" element={<Events />} />
+        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/register/:eventId" element={<RegisterEvent />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/add-event" element={<AddEvent />} />
           <Route path="/admin/edit-event/:eventId" element={<EditEvent />} />
           <Route 
             path="/admin/winners" 
@@ -70,10 +70,10 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route path="/admin/registrations" element={<ViewRegistrations />} />
-        </Routes>
-        <Footer/>
-      </Router>
+        <Route path="/admin/registrations" element={<ViewRegistrations />} />
+      </Routes>
+      <Footer/>
+    </Router>
       <ToastContainer
         position="top-right"
         autoClose={5000}

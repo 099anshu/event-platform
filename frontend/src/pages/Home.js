@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import WinnerHighlights from '../components/WinnerHighlights';
 
 const Home = () => {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
-  const [gallery, setGallery] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,21 +17,7 @@ const Home = () => {
       }
     };
 
-    const fetchGallery = async () => {
-      try {
-        const res = await axios.get('/api/gallery/latest');
-        if (Array.isArray(res.data)) {
-          setGallery(res.data);
-        } else {
-          console.warn('Unexpected gallery format:', res.data);
-        }
-      } catch (err) {
-        console.error('Error fetching gallery:', err);
-      }
-    };
-
     fetchEvents();
-    fetchGallery();
   }, []);
 
   const handleRegister = (eventId) => {
@@ -118,7 +104,7 @@ const Home = () => {
               ))
             )}
           </div>
-          
+
           <div className="text-center mt-10">
             <button
               onClick={() => navigate('/events')}
@@ -133,37 +119,8 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Gallery Preview Section */}
-      <div className="bg-white py-16 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-indigo-800 mb-10">Gallery Highlights</h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {gallery.map((item) => (
-              <div key={item._id} className="bg-gray-50 rounded-lg overflow-hidden shadow-lg">
-                <img
-                  src={item.imageUrl}
-                  alt={item.title}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
-                  <p className="text-gray-600 mt-2">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-10">
-            <button
-              onClick={() => navigate('/gallery')}
-              className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200"
-            >
-              View Full Gallery
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Winner Highlights Section */}
+      <WinnerHighlights />
     </div>
   );
 };

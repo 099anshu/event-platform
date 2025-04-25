@@ -7,6 +7,9 @@ const EditEvent = () => {
     const { eventId } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    const token = localStorage.getItem('token');
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+
     const [eventData, setEventData] = useState({
         name: '',
         description: '',
@@ -22,15 +25,25 @@ const EditEvent = () => {
     });
 
     useEffect(() => {
+        // Check if user is admin
+        if (!isAdmin || !token) {
+            toast.error('Unauthorized access');
+            navigate('/');
+            return;
+        }
+
         const fetchEvent = async () => {
             try {
-                const token = localStorage.getItem('token');
                 const response = await axios.get(`/api/events/${eventId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
                 
+                if (!response.data) {
+                    throw new Error('Event not found');
+                }
+
                 const event = response.data;
                 
                 // Format dates for form inputs
@@ -50,14 +63,14 @@ const EditEvent = () => {
             } catch (error) {
                 console.error('Error fetching event:', error);
                 toast.error(error.response?.data?.message || 'Failed to load event details');
-                navigate('/events');
+                navigate('/admin/events');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchEvent();
-    }, [eventId, navigate]);
+    }, [eventId, navigate, token, isAdmin]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -95,7 +108,6 @@ const EditEvent = () => {
                 throw new Error('Registration start and end dates are required');
             }
 
-            const token = localStorage.getItem('token');
             const formattedData = {
                 name: eventData.name,
                 description: eventData.description,
@@ -110,7 +122,7 @@ const EditEvent = () => {
             };
 
             const response = await axios.put(
-                `/api/admin/events/${eventId}`,
+                `/api/events/${eventId}`,
                 formattedData,
                 {
                     headers: {
@@ -240,7 +252,7 @@ const EditEvent = () => {
                         {/* Image URL */}
                         <div>
                             <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
-                                Event Banner Image URL *
+                                Image URL *
                             </label>
                             <input
                                 type="url"
@@ -253,10 +265,10 @@ const EditEvent = () => {
                             />
                         </div>
 
-                        {/* Brochure/PDF URL */}
+                        {/* Brochure URL */}
                         <div>
                             <label htmlFor="brochureUrl" className="block text-sm font-medium text-gray-700">
-                                Brochure/PDF URL
+                                Brochure URL
                             </label>
                             <input
                                 type="url"
@@ -266,45 +278,41 @@ const EditEvent = () => {
                                 onChange={handleChange}
                                 className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                             />
-                            <p className="mt-1 text-sm text-gray-500">Optional: Add a link to your event brochure or PDF</p>
                         </div>
 
                         {/* Registration Duration */}
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-medium text-gray-900">Registration Period</h3>
-                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                <div>
-                                    <label htmlFor="registration.start" className="block text-sm font-medium text-gray-700">
-                                        Registration Start *
-                                    </label>
-                                    <input
-                                        type="datetime-local"
-                                        id="registration.start"
-                                        name="registration.start"
-                                        required
-                                        value={eventData.registrationDuration.start}
-                                        onChange={handleChange}
-                                        className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label htmlFor="registration.end" className="block text-sm font-medium text-gray-700">
-                                        Registration End *
-                                    </label>
-                                    <input
-                                        type="datetime-local"
-                                        id="registration.end"
-                                        name="registration.end"
-                                        required
-                                        value={eventData.registrationDuration.end}
-                                        onChange={handleChange}
-                                        className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                    />
-                                </div>
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div>
+                                <label htmlFor="registration.start" className="block text-sm font-medium text-gray-700">
+                                    Registration Start *
+                                </label>
+                                <input
+                                    type="datetime-local"
+                                    id="registration.start"
+                                    name="registration.start"
+                                    required
+                                    value={eventData.registrationDuration.start}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="registration.end" className="block text-sm font-medium text-gray-700">
+                                    Registration End *
+                                </label>
+                                <input
+                                    type="datetime-local"
+                                    id="registration.end"
+                                    name="registration.end"
+                                    required
+                                    value={eventData.registrationDuration.end}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                />
                             </div>
                         </div>
 
-                        {/* Form Actions */}
+                        {/* Submit Button */}
                         <div className="flex justify-end space-x-4 pt-4">
                             <button
                                 type="button"

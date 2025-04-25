@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 
 const winnerSchema = new mongoose.Schema({
-    eventId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Event',
-        required: true
-    },
     category: {
         type: String,
         required: true,

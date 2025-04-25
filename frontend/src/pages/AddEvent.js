@@ -7,10 +7,10 @@ import 'react-toastify/dist/ReactToastify.css';
 const AddEvent = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [eventData, setEventData] = useState({
-        name: '',
+  const [eventData, setEventData] = useState({
+    name: '',
         description: '',
-        date: '',
+    date: '',
         time: '',
         location: '',
         imageUrl: '',
@@ -21,7 +21,7 @@ const AddEvent = () => {
         }
     });
 
-    const handleChange = (e) => {
+  const handleChange = (e) => {
         const { name, value } = e.target;
         if (name.includes('registration')) {
             const field = name.split('.')[1];
@@ -38,10 +38,10 @@ const AddEvent = () => {
                 [name]: value
             }));
         }
-    };
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
         setLoading(true);
 
         try {
@@ -71,13 +71,13 @@ const AddEvent = () => {
             await axios.post(
                 '/api/events',
                 formattedData,
-                {
-                    headers: {
+        {
+          headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
-                }
-            );
+        }
+      );
 
             toast.success('Event created successfully!');
             navigate('/admin/events');
@@ -86,10 +86,10 @@ const AddEvent = () => {
             toast.error(error.response?.data?.message || error.message || 'Failed to create event');
         } finally {
             setLoading(false);
-        }
-    };
+    }
+  };
 
-    return (
+  return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-3xl mx-auto">
                 <div className="bg-white shadow-lg rounded-lg px-6 py-8">
@@ -101,13 +101,13 @@ const AddEvent = () => {
                             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                                 Event Title *
                             </label>
-                            <input
-                                type="text"
+          <input
+            type="text"
                                 id="name"
-                                name="name"
+            name="name"
                                 required
-                                value={eventData.name}
-                                onChange={handleChange}
+            value={eventData.name}
+            onChange={handleChange}
                                 placeholder="Enter event title"
                                 className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                             />
@@ -121,13 +121,13 @@ const AddEvent = () => {
                             <textarea
                                 id="description"
                                 name="description"
-                                required
+            required
                                 rows={4}
                                 value={eventData.description}
                                 onChange={handleChange}
                                 placeholder="Enter event description"
                                 className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                            />
+          />
                         </div>
 
                         {/* Date and Time */}
@@ -136,13 +136,13 @@ const AddEvent = () => {
                                 <label htmlFor="date" className="block text-sm font-medium text-gray-700">
                                     Event Date *
                                 </label>
-                                <input
-                                    type="date"
+          <input
+            type="date"
                                     id="date"
-                                    name="date"
+            name="date"
                                     required
-                                    value={eventData.date}
-                                    onChange={handleChange}
+            value={eventData.date}
+            onChange={handleChange}
                                     min={new Date().toISOString().split('T')[0]}
                                     className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                                 />
@@ -189,12 +189,12 @@ const AddEvent = () => {
                                 type="url"
                                 id="imageUrl"
                                 name="imageUrl"
-                                required
+            required
                                 value={eventData.imageUrl}
                                 onChange={handleChange}
                                 placeholder="https://example.com/image.jpg"
                                 className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                            />
+          />
                         </div>
 
                         {/* Brochure/PDF URL */}
@@ -243,36 +243,36 @@ const AddEvent = () => {
                                         name="registration.end"
                                         required
                                         value={eventData.registrationDuration.end}
-                                        onChange={handleChange}
+            onChange={handleChange}
                                         min={eventData.registrationDuration.start || new Date().toISOString().slice(0, 16)}
                                         className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                    />
+          />
                                 </div>
                             </div>
                         </div>
 
                         {/* Form Actions */}
                         <div className="flex justify-end space-x-4 pt-4">
-                            <button
+          <button
                                 type="button"
                                 onClick={() => navigate('/admin/events')}
                                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
+          >
                                 Cancel
-                            </button>
-                            <button
+          </button>
+        <button
                                 type="submit"
                                 disabled={loading}
                                 className={`px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
-                            >
+        >
                                 {loading ? 'Creating...' : 'Create Event'}
-                            </button>
+        </button>
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default AddEvent;

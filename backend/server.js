@@ -3,6 +3,7 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const connectDB = require('./config/db');
 
 const eventRoutes = require('./routes/eventRoutes');
@@ -10,6 +11,7 @@ const authRoutes = require('./routes/authRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
+const winnerRoutes = require('./routes/winnerRoutes');
 
 // Initialize app
 const app = express();
@@ -23,6 +25,15 @@ app.use(cors());
 
 // Middleware for parsing JSON bodies
 app.use(express.json());
+
+// Debug logging for static files
+app.use('/uploads', (req, res, next) => {
+    console.log('Static file requested:', req.path);
+    next();
+});
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Test routes with better logging
 app.get('/', (req, res) => {
@@ -117,6 +128,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/gallery', galleryRoutes);
+app.use('/api/winners', winnerRoutes);
 
 // Global error handler (should be last)
 app.use((err, req, res, next) => {

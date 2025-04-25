@@ -5,7 +5,6 @@ const Event = require('../models/Event');
 exports.getAllWinners = async (req, res) => {
     try {
         const winners = await Winner.find()
-            .populate('eventId', 'name date')
             .populate('createdBy', 'name')
             .sort({ createdAt: -1 });
 
@@ -28,7 +27,6 @@ exports.getWinnersByCategory = async (req, res) => {
     try {
         const { category } = req.params;
         const winners = await Winner.find({ category })
-            .populate('eventId', 'name date')
             .populate('createdBy', 'name')
             .sort({ createdAt: -1 });
 
@@ -50,7 +48,6 @@ exports.getWinnersByCategory = async (req, res) => {
 exports.getWinnerById = async (req, res) => {
     try {
         const winner = await Winner.findById(req.params.winnerId)
-            .populate('eventId', 'name date')
             .populate('createdBy', 'name');
 
         if (!winner) {
@@ -78,7 +75,6 @@ exports.getWinnerById = async (req, res) => {
 exports.createWinner = async (req, res) => {
     try {
         const {
-            eventId,
             category,
             subCategory,
             title,
@@ -104,17 +100,7 @@ exports.createWinner = async (req, res) => {
             });
         }
 
-        // Check if event exists
-        const event = await Event.findById(eventId);
-        if (!event) {
-            return res.status(404).json({
-                success: false,
-                message: 'Event not found'
-            });
-        }
-
         const winner = await Winner.create({
-            eventId,
             category,
             subCategory,
             title,

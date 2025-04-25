@@ -23,8 +23,8 @@ const Login = () => {
         method: 'post',
         url: '/api/auth/login',
         data: {
-          email,
-          password,
+        email,
+        password,
         }
       });
 
