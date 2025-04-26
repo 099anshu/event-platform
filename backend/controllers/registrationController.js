@@ -79,9 +79,13 @@ const getRegistrationsByEvent = async (req, res) => {
 const getRegistrationsByUser = async (req, res) => {
   try {
     const registrations = await Registration.find({ 
-      user: req.user._id,
-      status: 'submitted'
-    }).populate('event', 'name date location imageUrl');
+      user: req.user._id
+    })
+    .populate({
+      path: 'event',
+      select: 'name date location imageUrl description'
+    })
+    .sort({ createdAt: -1 }); // Sort by newest first
 
     res.json(registrations);
   } catch (error) {
@@ -137,12 +141,18 @@ const updateRegistration = async (req, res) => {
 // Delete registration (admin only)
 const deleteRegistration = async (req, res) => {
   try {
-    const registration = await Registration.findByIdAndDelete(req.params.registrationId);
+    const registration = await Registration.findById(req.params.registrationId);
 
     if (!registration) {
       return res.status(404).json({ message: 'Registration not found' });
     }
 
+    // Check if the user is authorized to delete this registration
+    if (!req.user.isAdmin && registration.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to delete this registration' });
+    }
+
+    await registration.remove();
     res.json({ message: 'Registration deleted successfully' });
   } catch (error) {
     console.error('Error deleting registration:', error);
@@ -210,6 +220,7 @@ const submitRegistration = async (req, res) => {
 
     // Check if eventId is provided
     if (!eventId) {
+      console.log('Error: Event ID is missing');
       return res.status(400).json({
         success: false,
         message: 'Event ID is required'
@@ -219,6 +230,7 @@ const submitRegistration = async (req, res) => {
     // Validate the registration data
     const validationError = validateRegistration(formData);
     if (validationError) {
+      console.log('Validation error:', validationError);
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
@@ -229,11 +241,20 @@ const submitRegistration = async (req, res) => {
     // Check if event exists and is open for registration
     const event = await Event.findById(eventId);
     if (!event) {
+      console.log('Error: Event not found with ID:', eventId);
       return res.status(404).json({
         success: false,
         message: 'Event not found'
       });
     }
+
+    // Log event details for debugging
+    console.log('Event details:', {
+      eventId: event._id,
+      registrationStart: event.registrationDuration.start,
+      registrationEnd: event.registrationDuration.end,
+      currentTime: new Date()
+    });
 
     // Check if user is already registered
     const existingRegistration = await Registration.findOne({ 
@@ -243,6 +264,7 @@ const submitRegistration = async (req, res) => {
     });
 
     if (existingRegistration) {
+      console.log('Error: User already registered:', { userId, eventId });
       return res.status(400).json({
         success: false,
         message: 'You are already registered for this event'
@@ -255,7 +277,10 @@ const submitRegistration = async (req, res) => {
       status: 'submitted'
     });
 
+    console.log('Registration count:', { eventId, registrationCount });
+
     if (registrationCount >= event.maxParticipants) {
+      console.log('Error: Event full:', { eventId, registrationCount, maxParticipants: event.maxParticipants });
       return res.status(400).json({
         success: false,
         message: 'Event has reached maximum participants'
@@ -313,22 +338,29 @@ const submitRegistration = async (req, res) => {
       expectedLearning: formData.expectedLearning?.trim()
     };
 
-    // Create new registration
-    const registration = await Registration.create(registrationData);
+    // Log the prepared registration data
+    console.log('Prepared registration data:', registrationData);
 
-    // Log the created registration
-    console.log('Created registration:', registration);
+    // Create and save the registration
+    const registration = new Registration(registrationData);
+    await registration.save();
 
-    res.status(200).json({
+    console.log('Registration saved successfully:', registration._id);
+
+    res.status(201).json({
       success: true,
-      data: registration,
-      message: 'Registration submitted successfully'
+      message: 'Registration submitted successfully',
+      data: registration
     });
   } catch (error) {
-    console.error('Error submitting registration:', error);
+    console.error('Registration error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      message: 'Error submitting registration',
+      message: 'Failed to submit registration',
       error: error.message
     });
   }

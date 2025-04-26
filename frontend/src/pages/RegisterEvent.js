@@ -163,9 +163,56 @@ const RegisterEvent = () => {
     }));
   };
 
+  // Helper: Validate required fields before submit
+  const validateRequiredFields = () => {
+    const requiredFields = [
+      'fullName', 'email', 'phone', 'dateOfBirth', 'gender',
+      'institution', 'degree', 'graduationYear',
+      'track', 'skills', 'tshirtSize',
+    ];
+    for (const field of requiredFields) {
+      if (!formData[field] || (typeof formData[field] === 'string' && formData[field].trim() === '')) {
+        return `Please fill the required field: ${field}`;
+      }
+    }
+    if (!formData.location.city || !formData.location.state || !formData.location.country) {
+      return 'Please fill all location fields (city, state, country)';
+    }
+    if (!formData.codeOfConductConsent || !formData.mediaReleaseConsent || !formData.termsAndConditionsConsent) {
+      return 'You must agree to all required consents.';
+    }
+    if (formData.participationType === 'team') {
+      if (!formData.teamName || formData.teamName.trim() === '') {
+        return 'Please provide a team name.';
+      }
+      if (!formData.teamMembers || formData.teamMembers.length === 0) {
+        return 'Please add at least one team member.';
+      }
+      for (const [i, member] of formData.teamMembers.entries()) {
+        if (!member.name || !member.email) {
+          return `Please fill name and email for team member ${i + 1}`;
+        }
+      }
+    }
+    // tshirtSize must be one of allowed values
+    const allowedSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+    if (!allowedSizes.includes(formData.tshirtSize)) {
+      return 'Please select a valid T-shirt size.';
+    }
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+
+    // Frontend validation
+    const validationError = validateRequiredFields();
+    if (validationError) {
+      toast.error(validationError);
+      setSubmitting(false);
+      return;
+    }
 
     try {
       // Log the data being sent
@@ -188,7 +235,7 @@ const RegisterEvent = () => {
 
       if (response.data.success) {
         toast.success('Registration submitted successfully!');
-        navigate('/student-dashboard');
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Registration error details:', {
@@ -198,8 +245,7 @@ const RegisterEvent = () => {
       });
 
       if (error.response?.data?.error && Array.isArray(error.response.data.error)) {
-        // Display validation errors
-        error.response.data.error.forEach(err => toast.error(err));
+        toast.error(error.response.data.error.join(', '));
       } else {
         toast.error(error.response?.data?.message || 'Failed to submit registration');
       }
@@ -228,7 +274,7 @@ const RegisterEvent = () => {
     ];
 
     return (
-      <div className="w-full py-6">
+      <div className=" w-full py-6">
         <div className="flex items-center justify-between">
           {steps.map((step, index) => (
             <React.Fragment key={index}>
@@ -746,7 +792,7 @@ const RegisterEvent = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 py-12 px-6">
+    <div className="min-h-screen flex flex-col justify-start items-center bg-black text-black relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_5%_40%,#ff69b4_2%,transparent_15%),radial-gradient(circle_at_80%_55%,#ff69b4_5%,transparent_35%),radial-gradient(circle_at_10%_90%,#00ff9f_5%,transparent_35%),radial-gradient(circle_at_90%_10%,#00ff9f_5%,transparent_20%)] before:opacity-20 before:pointer-events-none py-12 px-6">
       <div className="max-w-4xl mx-auto">
         {/* Event Info Card */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">

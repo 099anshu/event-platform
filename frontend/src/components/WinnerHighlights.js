@@ -41,10 +41,10 @@ const WinnerHighlights = () => {
     }
 
     return (
-        <div className="py-12 bg-gradient-to-br from-indigo-50 to-blue-100">
+        <div className="py-12 h-screen flex flex-col justify-start items-center bg-black text-black relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_5%_40%,#ff69b4_2%,transparent_15%),radial-gradient(circle_at_80%_55%,#ff69b4_5%,transparent_35%),radial-gradient(circle_at_10%_90%,#00ff9f_5%,transparent_35%),radial-gradient(circle_at_90%_10%,#00ff9f_5%,transparent_20%)] before:opacity-20 before:pointer-events-none">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center">
-                    <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                    <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
                         Winner Highlights
                     </h2>
                     <p className="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">

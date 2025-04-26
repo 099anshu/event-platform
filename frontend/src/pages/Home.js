@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import WinnerHighlights from '../components/WinnerHighlights';
+import homeImage from './home.png';
 
 const Home = () => {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
@@ -42,25 +43,46 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold mb-6">Welcome to the Event Platform</h1>
-          <p className="text-xl mb-8">Discover exciting events and explore past winners.</p>
+    <div className="min-h-screen bg-black text-gray-100">
+      {/* Hero Section with Background Image */}
+      <div className="relative py-24 overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+        <img 
+           src={homeImage} 
+            alt="Background" 
+            className="w-full h-full object-cover"
+        />
+
+          <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+        </div>
+        
+        {/* Fancy Gradient Accent */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        
+        {/* Content */}
+        <div className="relative z-10 max-w-4xl mx-auto text-center px-6">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-pink-500">
+              Welcome to the Event Platform
+            </span>
+          </h1>
+          <p className="text-xl mb-10 text-gray-200">Discover exciting events and explore past winners.</p>
           <button 
             onClick={() => navigate('/events')}
-            className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition duration-200"
+            className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-lg transform hover:scale-105"
           >
             Explore All Events
           </button>
         </div>
       </div>
 
+
       {/* Upcoming Events Section */}
-      <div className="py-16 px-6">
+      <div className=" h-screen flex flex-col justify-start items-center bg-black text-black relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_5%_40%,#ff69b4_2%,transparent_15%),radial-gradient(circle_at_80%_55%,#ff69b4_5%,transparent_35%),radial-gradient(circle_at_10%_90%,#00ff9f_5%,transparent_35%),radial-gradient(circle_at_90%_10%,#00ff9f_5%,transparent_20%)] before:opacity-20 before:pointer-events-none">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-indigo-800 mb-10">Featured Upcoming Events</h2>
+          <h2 className="text-3xl font-bold text-center text-white mt-8 mb-10">Featured Upcoming Events</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {upcomingEvents.length === 0 ? (
@@ -105,7 +127,7 @@ const Home = () => {
             )}
           </div>
 
-          <div className="text-center mt-10">
+          <div className="text-center mt-10 mb-8">
             <button
               onClick={() => navigate('/events')}
               className="inline-flex items-center text-indigo-600 font-semibold hover:text-indigo-800"

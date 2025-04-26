@@ -17,8 +17,8 @@ const Events = () => {
     fetchEvents();
   }, []);
 
-  const fetchEvents = async () => {
-    try {
+    const fetchEvents = async () => {
+      try {
       const endpoint = isManagementMode ? '/api/events/all' : '/api/events/upcoming';
       const config = token ? {
         headers: { Authorization: `Bearer ${token}` }
@@ -33,21 +33,21 @@ const Events = () => {
         console.error('Unexpected response format:', res.data);
         setEvents([]);
       }
-    } catch (err) {
-      console.error('Failed to fetch events:', err);
+      } catch (err) {
+        console.error('Failed to fetch events:', err);
       toast.error('Failed to load events');
       setEvents([]);
     } finally {
       setLoading(false);
-    }
-  };
+      }
+    };
 
   const handleRegister = (eventId) => {
     if (!token) {
       navigate('/login', { state: { from: location.pathname } });
       return;
     }
-    navigate(`/register/${eventId}`);
+      navigate(`/register/${eventId}`);
   };
 
   const handleDelete = async (eventId) => {
@@ -72,7 +72,7 @@ const Events = () => {
       console.error('Failed to delete event:', err);
       toast.error(err.response?.data?.message || 'Failed to delete event');
     }
-  };
+  };  
 
   const handleEdit = (eventId) => {
     if (!isAdmin) {
@@ -103,7 +103,7 @@ const Events = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 py-12 px-6">
+    <div className="min-h-screen flex flex-col justify-start items-center bg-black text-black relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_5%_40%,#ff69b4_2%,transparent_15%),radial-gradient(circle_at_80%_55%,#ff69b4_5%,transparent_35%),radial-gradient(circle_at_10%_90%,#00ff9f_5%,transparent_35%),radial-gradient(circle_at_90%_10%,#00ff9f_5%,transparent_20%)] before:opacity-20 before:pointer-events-none py-12 px-6">
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="flex flex-col gap-4 mb-10">
@@ -228,9 +228,9 @@ const Events = () => {
                     )}
                   </div>
                 </div>
-              </div>
-            ))
-          )}
+            </div>
+          ))
+        )}
         </div>
       </div>
     </div>
