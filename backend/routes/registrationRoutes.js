@@ -1,18 +1,31 @@
 const express = require('express');
 const router = express.Router();
 const { 
-    registerForEvent,
-    getMyRegistrations,
-    getAllRegistrations
+    createRegistration,
+    getRegistrationsByEvent,
+    getRegistrationsByUser,
+    getRegistrationById,
+    updateRegistration,
+    deleteRegistration,
+    submitRegistration
 } = require('../controllers/registrationController');
 const authMiddleware = require('../middleware/authMiddleware');
 const adminMiddleware = require('../middleware/adminMiddleware');
 
-// Student routes (protected)
-router.post('/', authMiddleware, registerForEvent);
-router.get('/my', authMiddleware, getMyRegistrations);
+// All routes require authentication
+router.use(authMiddleware);
 
-// Admin routes
-router.get('/all', [authMiddleware, adminMiddleware], getAllRegistrations);
+// Student routes
+router.post('/submit', submitRegistration);
+router.get('/my-registrations', getRegistrationsByUser);
+router.get('/details/:registrationId', getRegistrationById);
+
+// Admin only routes
+router.get('/event/:eventId/all', adminMiddleware, getRegistrationsByEvent);
+router.put('/details/:registrationId', adminMiddleware, updateRegistration);
+router.delete('/details/:registrationId', adminMiddleware, deleteRegistration);
+
+// Legacy route for backward compatibility
+router.post('/', createRegistration);
 
 module.exports = router;
