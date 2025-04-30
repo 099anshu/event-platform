@@ -1,4 +1,4 @@
-1] Event Registration & Gallery Website ---------------------------
+1] Event Registration & Gallery Website -----------------------------
 
 A full-stack website that enables students to register for upcoming events and allows admins to manage events and winners. It also includes a public gallery showcasing past winners.
 
@@ -64,8 +64,7 @@ Frontend setup:
    3)Start React app:
      npm start
 
-5] Demo video link :
-     
-    
-     
+5] Demo video link -----------------------------------------------------
 
+   https://drive.google.com/file/d/1B3U9YW0Zir9AB1hmncfgTuZntY4Co72_/view?usp=drive_link
+   
