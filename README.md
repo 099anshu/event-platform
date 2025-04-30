@@ -1,8 +1,8 @@
-Event Registration & Gallery Website
+1] Event Registration & Gallery Website ---------------------------
 
 A full-stack website that enables students to register for upcoming events and allows admins to manage events and winners. It also includes a public gallery showcasing past winners.
 
-Functional Flow Summary
+2] Functional Flow Summary -----------------------------------------
 
 Public Users land on Home Page, view events and gallery.
 Click "Explore Events" → view list of upcoming events.
@@ -15,7 +15,7 @@ Create events
 Add past winners to gallery
 Anyone can view the gallery of past winners.
 
-Tech Stack (MERN)
+3] Tech Stack (MERN) ------------------------------------------------
 
 🖥️ Frontend – React.js
 React.js – SPA with reusable components.
@@ -39,3 +39,33 @@ Gallery (winners)
 Postman – API testing.
 VS Code – IDE.
 Git & GitHub – Version control and collaboration.
+
+4] Setup Instructions -----------------------------------------------
+
+Backend setup:
+
+   1)Clone the repo:
+     git clone <repo-url> && cd server
+   2)Install dependencies:
+     npm install
+   3)Create .env file:
+     MONGO_URI=your-mongo-url
+     JWT_SECRET=your-secret-key
+     PORT=5000
+   4)Start server:
+     npm run dev  
+
+Frontend setup:
+
+   1)Navigate to frontend/:
+     cd frontend
+   2)Install dependencies:
+     npm install
+   3)Start React app:
+     npm start
+
+5] Demo video link :
+     
+    
+     
+
