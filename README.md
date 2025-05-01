@@ -51,7 +51,7 @@ Click "Register":
 
 Backend setup:
 
-   -1)Clone the repo:
+  - 1)Clone the repo:
      git clone <repo-url> && cd server
   - 2)Install dependencies:
      npm install
