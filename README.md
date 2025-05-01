@@ -44,24 +44,24 @@ Git & GitHub – Version control and collaboration.
 
 Backend setup:
 
-   1)Clone the repo:
+   -1)Clone the repo:
      git clone <repo-url> && cd server
-   2)Install dependencies:
+  - 2)Install dependencies:
      npm install
-   3)Create .env file:
+  - 3)Create .env file:
      MONGO_URI=your-mongo-url
      JWT_SECRET=your-secret-key
      PORT=5000
-   4)Start server:
+  - 4)Start server:
      npm run dev  
 
 Frontend setup:
 
-   1)Navigate to frontend/:
+   -1)Navigate to frontend/:
      cd frontend
-   2)Install dependencies:
+   -2)Install dependencies:
      npm install
-   3)Start React app:
+   -3)Start React app:
      npm start
 
 5] Demo video link -----------------------------------------------------
